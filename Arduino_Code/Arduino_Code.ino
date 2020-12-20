@@ -51,6 +51,7 @@ void setup() {
 
 void loop() {
   // Check for incoming data
+  /*
   Serial.println("****************Status*******************");
   Serial.print("Servo 1:"); Serial.println(servo1PPos);
   Serial.print("Servo 2:"); Serial.println(servo2PPos);
@@ -59,161 +60,168 @@ void loop() {
   Serial.print("Servo 5:"); Serial.println(servo5PPos);
   Serial.print("Servo 6:"); Serial.println(servo6PPos);
   Serial.println("****************************************");
-  
+  */
   if (Bluetooth.available() > 0) {
-    dataIn = Bluetooth.readString();  // Read the data as string
-    delay(1);
-    Serial.println(dataIn);
+    dataIn = Bluetooth.readString();
     
-    // If "Waist" slider has changed value - Move Servo 1 to position
-    if (dataIn.startsWith("s1")) {
-      Serial.println("Moviendo servo 1");
-      String dataInS = dataIn.substring(2, dataIn.length()); // Extract only the number. E.g. from "s1120" to "120"
-      servo1Pos = dataInS.toInt();  // Convert the string into integer
-      // We use for loops so we can control the speed of the servo
-      // If previous position is bigger then current position
-      if (servo1PPos > servo1Pos) {
-        for ( int j = servo1PPos; j >= servo1Pos; j--) {   // Run servo down
-          servo01.write(j);
-          delay(15);    // defines the speed at which the servo rotates
+    Serial.print("Data: ");Serial.println(dataIn);
+    Serial.print("Len:"); Serial.println(dataIn.length());
+    dataIn = getValue(dataIn, 's',0);  // Read the data as string
+    delay(20);
+    if(dataIn.length() < 6 & dataIn.length() >= 2)
+    {
+      Serial.print("Data: ");Serial.println(dataIn);
+      
+      // If "Waist" slider has changed value - Move Servo 1 to position
+      if (dataIn.startsWith("s1")) {
+        Serial.println("Moviendo servo 1");
+        String dataInS = dataIn.substring(2, dataIn.length()); // Extract only the number. E.g. from "s1120" to "120"
+        servo1Pos = dataInS.toInt();  // Convert the string into integer
+        // We use for loops so we can control the speed of the servo
+        // If previous position is bigger then current position
+        if (servo1PPos > servo1Pos) {
+          for ( int j = servo1PPos; j >= servo1Pos; j--) {   // Run servo down
+            servo01.write(j);
+            delay(15);    // defines the speed at which the servo rotates
+          }
         }
-      }
-      // If previous position is smaller then current position
-      if (servo1PPos < servo1Pos) {
-        for ( int j = servo1PPos; j <= servo1Pos; j++) {   // Run servo up
-          servo01.write(j);
-          delay(15);
+        // If previous position is smaller then current position
+        if (servo1PPos < servo1Pos) {
+          for ( int j = servo1PPos; j <= servo1Pos; j++) {   // Run servo up
+            servo01.write(j);
+            delay(15);
+          }
         }
+        servo1PPos = servo1Pos;   // set current position as previous position
+        Serial.println(servo1PPos);
       }
-      servo1PPos = servo1Pos;   // set current position as previous position
-      Serial.println(servo1PPos);
-    }
-    
-    // Move Servo 2
-    if (dataIn.startsWith("s2")) {
-      Serial.println("Moviendo servo 2");
-      String dataInS = dataIn.substring(2, dataIn.length());
-      servo2Pos = dataInS.toInt();
-
-      if (servo2PPos > servo2Pos) {
-        for ( int j = servo2PPos; j >= servo2Pos; j--) {
-          servo02.write(j);
-          delay(15);
+      
+      // Move Servo 2
+      if (dataIn.startsWith("s2")) {
+        Serial.println("Moviendo servo 2");
+        String dataInS = dataIn.substring(2, dataIn.length());
+        servo2Pos = dataInS.toInt();
+  
+        if (servo2PPos > servo2Pos) {
+          for ( int j = servo2PPos; j >= servo2Pos; j--) {
+            servo02.write(j);
+            delay(15);
+          }
         }
-      }
-      if (servo2PPos < servo2Pos) {
-        for ( int j = servo2PPos; j <= servo2Pos; j++) {
-          servo02.write(j);
-          delay(15);
+        if (servo2PPos < servo2Pos) {
+          for ( int j = servo2PPos; j <= servo2Pos; j++) {
+            servo02.write(j);
+            delay(15);
+          }
         }
+        servo2PPos = servo2Pos;
+        Serial.println(servo2PPos);
       }
-      servo2PPos = servo2Pos;
-      Serial.println(servo2PPos);
-    }
-    // Move Servo 3
-    if (dataIn.startsWith("s3")) {
-      Serial.println("Moviendo servo 3");
-      String dataInS = dataIn.substring(2, dataIn.length());
-      servo3Pos = dataInS.toInt();
-      if (servo3PPos > servo3Pos) {
-        for ( int j = servo3PPos; j >= servo3Pos; j--) {
-          servo03.write(j);
-          delay(15);
+      // Move Servo 3
+      if (dataIn.startsWith("s3")) {
+        Serial.println("Moviendo servo 3");
+        String dataInS = dataIn.substring(2, dataIn.length());
+        servo3Pos = dataInS.toInt();
+        if (servo3PPos > servo3Pos) {
+          for ( int j = servo3PPos; j >= servo3Pos; j--) {
+            servo03.write(j);
+            delay(15);
+          }
         }
-      }
-      if (servo3PPos < servo3Pos) {
-        for ( int j = servo3PPos; j <= servo3Pos; j++) {
-          servo03.write(j);
-          delay(15);
+        if (servo3PPos < servo3Pos) {
+          for ( int j = servo3PPos; j <= servo3Pos; j++) {
+            servo03.write(j);
+            delay(15);
+          }
         }
+        servo3PPos = servo3Pos;
+        Serial.println(servo3PPos);
       }
-      servo3PPos = servo3Pos;
-      Serial.println(servo3PPos);
-    }
-    // Move Servo 4
-    if (dataIn.startsWith("s4")) {
-      Serial.println("Moviendo servo 4");
-      String dataInS = dataIn.substring(2, dataIn.length());
-      servo4Pos = dataInS.toInt();
-      if (servo4PPos > servo4Pos) {
-        for ( int j = servo4PPos; j >= servo4Pos; j--) {
-          servo04.write(j);
-          delay(15);
+      // Move Servo 4
+      if (dataIn.startsWith("s4")) {
+        Serial.println("Moviendo servo 4");
+        String dataInS = dataIn.substring(2, dataIn.length());
+        servo4Pos = dataInS.toInt();
+        if (servo4PPos > servo4Pos) {
+          for ( int j = servo4PPos; j >= servo4Pos; j--) {
+            servo04.write(j);
+            delay(15);
+          }
         }
-      }
-      if (servo4PPos < servo4Pos) {
-        for ( int j = servo4PPos; j <= servo4Pos; j++) {
-          servo04.write(j);
-          delay(15);
+        if (servo4PPos < servo4Pos) {
+          for ( int j = servo4PPos; j <= servo4Pos; j++) {
+            servo04.write(j);
+            delay(15);
+          }
         }
+        servo4PPos = servo4Pos;
+        Serial.println(servo4PPos);
       }
-      servo4PPos = servo4Pos;
-      Serial.println(servo4PPos);
-    }
-    // Move Servo 5
-    if (dataIn.startsWith("s5")) {
-      Serial.println("Moviendo servo 5");
-      String dataInS = dataIn.substring(2, dataIn.length());
-      servo5Pos = dataInS.toInt();
-      if (servo5PPos > servo5Pos) {
-        for ( int j = servo5PPos; j >= servo5Pos; j--) {
-          servo05.write(j);
-          delay(15);
+      // Move Servo 5
+      if (dataIn.startsWith("s5")) {
+        Serial.println("Moviendo servo 5");
+        String dataInS = dataIn.substring(2, dataIn.length());
+        servo5Pos = dataInS.toInt();
+        if (servo5PPos > servo5Pos) {
+          for ( int j = servo5PPos; j >= servo5Pos; j--) {
+            servo05.write(j);
+            delay(15);
+          }
         }
-      }
-      if (servo5PPos < servo5Pos) {
-        for ( int j = servo5PPos; j <= servo5Pos; j++) {
-          servo05.write(j);
-          delay(15);
+        if (servo5PPos < servo5Pos) {
+          for ( int j = servo5PPos; j <= servo5Pos; j++) {
+            servo05.write(j);
+            delay(15);
+          }
         }
+        servo5PPos = servo5Pos;
+        Serial.println(servo5PPos);
       }
-      servo5PPos = servo5Pos;
-      Serial.println(servo5PPos);
-    }
-    // Move Servo 6
-    if (dataIn.startsWith("s6")) {
-      Serial.println("Moviendo servo 6");
-      String dataInS = dataIn.substring(2, dataIn.length());
-      servo6Pos = dataInS.toInt();
-      if (servo6PPos > servo6Pos) {
-        for ( int j = servo6PPos; j >= servo6Pos; j--) {
-          servo06.write(j);
-          delay(15);
+      // Move Servo 6
+      if (dataIn.startsWith("s6")) {
+        Serial.println("Moviendo servo 6");
+        String dataInS = dataIn.substring(2, dataIn.length());
+        servo6Pos = dataInS.toInt();
+        if (servo6PPos > servo6Pos) {
+          for ( int j = servo6PPos; j >= servo6Pos; j--) {
+            servo06.write(j);
+            delay(15);
+          }
         }
-      }
-      if (servo6PPos < servo6Pos) {
-        for ( int j = servo6PPos; j <= servo6Pos; j++) {
-          servo06.write(j);
-          delay(15);
+        if (servo6PPos < servo6Pos) {
+          for ( int j = servo6PPos; j <= servo6Pos; j++) {
+            servo06.write(j);
+            delay(15);
+          }
         }
+        servo6PPos = servo6Pos; 
+        Serial.println(servo6PPos);
       }
-      servo6PPos = servo6Pos; 
-      Serial.println(servo6PPos);
-    }
-    // If button "SAVE" is pressed
-    if (dataIn.startsWith("SAVE")) {
-      servo01SP[index] = servo1PPos;  // save position into the array
-      servo02SP[index] = servo2PPos;
-      servo03SP[index] = servo3PPos;
-      servo04SP[index] = servo4PPos;
-      servo05SP[index] = servo5PPos;
-      servo06SP[index] = servo6PPos;
-      index++;                        // Increase the array index
-    }
-    // If button "RUN" is pressed
-    if (dataIn.startsWith("RUN")) {
-      runservo();  // Automatic mode - run the saved steps 
-    }
-    // If button "RESET" is pressed
-    if ( dataIn == "RESET") {
-      memset(servo01SP, 0, sizeof(servo01SP)); // Clear the array data to 0
-      memset(servo02SP, 0, sizeof(servo02SP));
-      memset(servo03SP, 0, sizeof(servo03SP));
-      memset(servo04SP, 0, sizeof(servo04SP));
-      memset(servo05SP, 0, sizeof(servo05SP));
-      memset(servo06SP, 0, sizeof(servo06SP));
-      index = 0;  // Index to 0
-    }
+      // If button "SAVE" is pressed
+      if (dataIn.startsWith("SAVE")) {
+        servo01SP[index] = servo1PPos;  // save position into the array
+        servo02SP[index] = servo2PPos;
+        servo03SP[index] = servo3PPos;
+        servo04SP[index] = servo4PPos;
+        servo05SP[index] = servo5PPos;
+        servo06SP[index] = servo6PPos;
+        index++;                        // Increase the array index
+      }
+      // If button "RUN" is pressed
+      if (dataIn.startsWith("RUN")) {
+        runservo();  // Automatic mode - run the saved steps 
+      }
+      // If button "RESET" is pressed
+      if ( dataIn == "RESET") {
+        memset(servo01SP, 0, sizeof(servo01SP)); // Clear the array data to 0
+        memset(servo02SP, 0, sizeof(servo02SP));
+        memset(servo03SP, 0, sizeof(servo03SP));
+        memset(servo04SP, 0, sizeof(servo04SP));
+        memset(servo05SP, 0, sizeof(servo05SP));
+        memset(servo06SP, 0, sizeof(servo06SP));
+        index = 0;  // Index to 0
+      }
+    } 
   }
 }
 
@@ -336,4 +344,20 @@ void runservo() {
       }
     }
   }
+}
+
+String getValue(String data, char separator, int index)
+{
+    int found = 0;
+    int strIndex[] = { 0, -1 };
+    int maxIndex = data.length() - 1;
+
+    for (int i = 0; i <= maxIndex && found <= index; i++) {
+        if (data.charAt(i) == separator || i == maxIndex) {
+            found++;
+            strIndex[0] = strIndex[1] + 1;
+            strIndex[1] = (i == maxIndex) ? i+1 : i;
+        }
+    }
+    return found > index ? data.substring(strIndex[0] - 1, strIndex[1]) : "";
 }
