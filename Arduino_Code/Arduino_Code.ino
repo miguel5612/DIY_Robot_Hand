@@ -20,7 +20,11 @@ int servo1PPos, servo2PPos, servo3PPos, servo4PPos, servo5PPos, servo6PPos; // p
 int servo01SP[50], servo02SP[50], servo03SP[50], servo04SP[50], servo05SP[50], servo06SP[50]; // for storing positions/steps
 int speedDelay = 20;
 int index = 0;
-String dataIn = "";
+bool first = false, salto = false;
+unsigned long timeoutB = 0;
+char inByte;
+String dataIn;
+
 
 void setup() {
   servo01.attach(2); //5
@@ -45,7 +49,7 @@ void setup() {
   servo05.write(servo5PPos);
   servo6PPos = 135;
   servo06.write(servo6PPos);
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.println("Brazo robot inicializado");
 }
 
@@ -61,17 +65,9 @@ void loop() {
   Serial.print("Servo 6:"); Serial.println(servo6PPos);
   Serial.println("****************************************");
   */
-  if (Bluetooth.available() > 0) {
-    dataIn = Bluetooth.readString();
-    
-    Serial.print("Data: ");Serial.println(dataIn);
-    Serial.print("Len:"); Serial.println(dataIn.length());
-    dataIn = getValue(dataIn, 's',0);  // Read the data as string
-    delay(20);
-    if(dataIn.length() < 6 & dataIn.length() >= 2)
-    {
-      Serial.print("Data: ");Serial.println(dataIn);
-      
+  readBtSerial();
+  if (dataIn.length()>2 & dataIn!="" & salto) {
+      Serial.print("Data: "); Serial.println(dataIn);
       // If "Waist" slider has changed value - Move Servo 1 to position
       if (dataIn.startsWith("s1")) {
         Serial.println("Moviendo servo 1");
@@ -222,7 +218,8 @@ void loop() {
         index = 0;  // Index to 0
       }
     } 
-  }
+    salto = false;
+    dataIn = "";
 }
 
 // Automatic mode custom function - run the saved steps
@@ -316,13 +313,13 @@ void runservo() {
       }
       if (servo05SP[i] > servo05SP[i + 1]) {
         for ( int j = servo05SP[i]; j >= servo05SP[i + 1]; j--) {
-          servo05.write(j);
+          servo05.write(j-50);
           delay(speedDelay);
         }
       }
       if (servo05SP[i] < servo05SP[i + 1]) {
         for ( int j = servo05SP[i]; j <= servo05SP[i + 1]; j++) {
-          servo05.write(j);
+          servo05.write(j-50);
           delay(speedDelay);
         }
       }
@@ -332,13 +329,13 @@ void runservo() {
       }
       if (servo06SP[i] > servo06SP[i + 1]) {
         for ( int j = servo06SP[i]; j >= servo06SP[i + 1]; j--) {
-          servo06.write(j);
+          servo06.write(j + 40);
           delay(speedDelay);
         }
       }
       if (servo06SP[i] < servo06SP[i + 1]) {
         for ( int j = servo06SP[i]; j <= servo06SP[i + 1]; j++) {
-          servo06.write(j);
+          servo06.write(j + 40);
           delay(speedDelay);
         }
       }
@@ -360,4 +357,24 @@ String getValue(String data, char separator, int index)
         }
     }
     return found > index ? data.substring(strIndex[0] - 1, strIndex[1]) : "";
+}
+void readBtSerial()
+{
+  while (Bluetooth.available() > 0) {
+    inByte = Bluetooth.read();
+    if(inByte == 's' & !first)
+    {
+      delay(1);
+      first = true;
+      timeoutB = millis();
+    }  
+    else if((first & (millis() - timeoutB > 5)) || inByte == 's' || inByte == '.')
+    {
+      first = false;
+      salto = true;
+      break;    
+    }
+    
+    if(first){ dataIn += inByte; delay(1);}
+  }
 }
