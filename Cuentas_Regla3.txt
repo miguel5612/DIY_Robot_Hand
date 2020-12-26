@@ -1,0 +1,24 @@
+servo 5
+28 - 155
+
+(lectura - 28)*1.4
+
+servo 4
+4 - 150
+(lectura - 4)*1.2
+
+servo 3:
+34 - 140
+77 - 120
+
+(lectura - 34)*1,7
+
+servo2:
+102 - 163
+
+(lectura -102)*3
+
+servo1:
+23 - 169
+
+(lectura - 23)*1.2

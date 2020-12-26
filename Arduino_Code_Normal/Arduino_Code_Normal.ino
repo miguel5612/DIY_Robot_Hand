@@ -18,12 +18,12 @@ SoftwareSerial Bluetooth(9, 8); // Arduino(RX, TX) - HC-05 Bluetooth (TX, RX) 3 
 int servo1Pos, servo2Pos, servo3Pos, servo4Pos, servo5Pos, servo6Pos; // current position
 int servo1PPos, servo2PPos, servo3PPos, servo4PPos, servo5PPos, servo6PPos; // previous position
 int servo01SP[50], servo02SP[50], servo03SP[50], servo04SP[50], servo05SP[50], servo06SP[50]; // for storing positions/steps
-int speedDelay = 30;
+int speedDelay = 2;
 int index = 0;
 bool first = false, salto = false;
 unsigned long timeoutB = 0;
 char inByte;
-String dataIn;
+String dataIn, dataInS;
 
 
 void setup() {
@@ -69,10 +69,12 @@ void loop() {
   if (dataIn.length()>2 & dataIn!="" & salto) {
       Serial.print("Data: "); Serial.println(dataIn);
       // If "Waist" slider has changed value - Move Servo 1 to position
+
+      
       if (dataIn.startsWith("s1")) {
         Serial.println("Moviendo servo 1");
-        String dataInS = dataIn.substring(2, dataIn.length()); // Extract only the number. E.g. from "s1120" to "120"
-        servo1Pos = dataInS.toInt();  // Convert the string into integer
+        dataInS = dataIn.substring(2, dataIn.length()); // Extract only the number. E.g. from "s1120" to "120"
+        servo1Pos = corregirServo01(dataInS.toInt());  // Convert the string into integer
         // We use for loops so we can control the speed of the servo
         // If previous position is bigger then current position
         if (servo1PPos > servo1Pos) {
@@ -95,8 +97,8 @@ void loop() {
       // Move Servo 2
       if (dataIn.startsWith("s2")) {
         Serial.println("Moviendo servo 2");
-        String dataInS = dataIn.substring(2, dataIn.length());
-        servo2Pos = dataInS.toInt();
+        dataInS = dataIn.substring(2, dataIn.length());
+        servo2Pos = corregirServo02(dataInS.toInt());
   
         if (servo2PPos > servo2Pos) {
           for ( int j = servo2PPos; j >= servo2Pos; j--) {
@@ -118,8 +120,8 @@ void loop() {
       // Move Servo 3
       if (dataIn.startsWith("s3")) {
         Serial.println("Moviendo servo 3");
-        String dataInS = dataIn.substring(2, dataIn.length());
-        servo3Pos = dataInS.toInt();
+        dataInS = dataIn.substring(2, dataIn.length());
+        servo3Pos = corregirServo03(dataInS.toInt());
         if (servo3PPos > servo3Pos) {
           for ( int j = servo3PPos; j >= servo3Pos; j--) {
             servo03.write(j);
@@ -138,8 +140,8 @@ void loop() {
       // Move Servo 4
       if (dataIn.startsWith("s4")) {
         Serial.println("Moviendo servo 4");
-        String dataInS = dataIn.substring(2, dataIn.length());
-        servo4Pos = dataInS.toInt();
+        dataInS = dataIn.substring(2, dataIn.length());
+        servo4Pos = corregirServo04(dataInS.toInt());
         if (servo4PPos > servo4Pos) {
           for ( int j = servo4PPos; j >= servo4Pos; j--) {
             servo04.write(j);
@@ -158,8 +160,8 @@ void loop() {
       // Move Servo 5
       if (dataIn.startsWith("s5")) {
         Serial.println("Moviendo servo 5");
-        String dataInS = dataIn.substring(2, dataIn.length());
-        servo5Pos = dataInS.toInt();
+        dataInS = dataIn.substring(2, dataIn.length());
+        servo5Pos = corregirServo05(dataInS.toInt());
         if (servo5PPos > servo5Pos) {
           for ( int j = servo5PPos; j >= servo5Pos; j--) {
             servo05.write(j);
@@ -351,6 +353,7 @@ void readBtSerial()
     {
       first = false;
       salto = true;
+      delay(500);
       break;    
     }else if(first)
     { 
@@ -374,6 +377,36 @@ void readBtSerial()
     }*/
     
   }
+}
+
+// Con estas funciones se consigue que el valor que llega en pos, vaya al servo con un rango de entre 0 y 180 grados.
+int corregirServo01(int pos)
+{
+  return (pos-23)*1.2;
+}
+
+
+int corregirServo02(int pos)
+{
+  return (pos-102)*3;
+}
+
+
+int corregirServo03(int pos)
+{
+  return (pos-34)*1.7;
+}
+
+
+int corregirServo04(int pos)
+{
+  return (pos-4)*1.2;
+}
+
+
+int corregirServo05(int pos)
+{
+  return (pos-28)*1.4;
 }
 
 int corregirServo06(int pos)
