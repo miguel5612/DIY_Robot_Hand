@@ -131,6 +131,7 @@ void loop() {
             }
           } 
         }
+        
         servo2PPos = servo2Pos;
         Serial.println(servo02.read());
         delay(timeDelayAfterMov);
@@ -169,8 +170,8 @@ void loop() {
         servo4Pos = corregirServo04(dataInS.toInt());
         if(servo4Pos != servo4PPos){
           Serial.print("Moviendo servo 4 ");
-          Serial.print(servo2PPos); Serial.print(" - ");
-          Serial.println(servo2Pos);
+          Serial.print(servo4PPos); Serial.print(" - ");
+          Serial.println(servo4Pos);
           
           if (servo4PPos > servo4Pos) {
             for ( int j = servo4PPos; j >= servo4Pos; j--) {
@@ -195,8 +196,9 @@ void loop() {
       if (dataIn.startsWith("s5")) {
         dataInS = dataIn.substring(2, dataIn.length());
         servo5Pos = corregirServo05(dataInS.toInt());
+
         if(servo5Pos != servo5PPos){
-          Serial.print("Moviendo servo 4 ");
+          Serial.print("Moviendo servo 5 ");
           Serial.print(servo5PPos); Serial.print(" - ");
           Serial.println(servo5Pos);
         
