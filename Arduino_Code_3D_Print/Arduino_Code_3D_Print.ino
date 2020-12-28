@@ -18,8 +18,9 @@ SoftwareSerial Bluetooth(9, 8); // Arduino(RX, TX) - HC-05 Bluetooth (TX, RX) 3 
 int servo1Pos, servo2Pos, servo3Pos, servo4Pos, servo5Pos, servo6Pos; // current position
 int servo1PPos, servo2PPos, servo3PPos, servo4PPos, servo5PPos, servo6PPos; // previous position
 int servo01SP[50], servo02SP[50], servo03SP[50], servo04SP[50], servo05SP[50], servo06SP[50]; // for storing positions/steps
-int speedDelay = 30;
+int speedDelay = 50;
 int index = 0;
+int timeDelayAfterMov = 500;
 bool first = false, salto = false;
 unsigned long timeoutB = 0;
 char inByte;
@@ -47,10 +48,10 @@ void setup() {
   servo04.write(servo4PPos);
   servo5PPos = 85;
   servo05.write(servo5PPos);
-  servo6PPos = 135;
+  servo6PPos = 95;
   servo06.write(servo6PPos);
   Serial.begin(115200);
-  Serial.println("Brazo robot inicializado");
+  Serial.println("Brazo robot (impreso en 3D) inicializado");
 }
 
 void loop() {
@@ -70,106 +71,146 @@ void loop() {
       Serial.print("Data: "); Serial.println(dataIn);
       // If "Waist" slider has changed value - Move Servo 1 to position
       if (dataIn.startsWith("s1")) {
-        Serial.println("Moviendo servo 1");
         String dataInS = dataIn.substring(2, dataIn.length()); // Extract only the number. E.g. from "s1120" to "120"
-        servo1Pos = dataInS.toInt();  // Convert the string into integer
+        servo1Pos = corregirServo01(dataInS.toInt());  // Convert the string into integer
         // We use for loops so we can control the speed of the servo
         // If previous position is bigger then current position
-        if (servo1PPos > servo1Pos) {
-          for ( int j = servo1PPos; j >= servo1Pos; j--) {   // Run servo down
-            servo01.write(j);
-            delay(speedDelay);    // defines the speed at which the servo rotates
+        if(servo1Pos != servo1PPos){
+         Serial.print("Moviendo servo 1 ");
+         Serial.print(servo1PPos); Serial.print(" - ");
+         Serial.println(servo1Pos);
+        
+          if (servo1PPos > servo1Pos) {
+            for ( int j = servo1PPos; j >= servo1Pos; j--) {   // Run servo down
+              servo01.write(j);
+              Serial.print(j);Serial.print(".");
+              delay(speedDelay);    // defines the speed at which the servo rotates
+            }
+          }
+          // If previous position is smaller then current position
+          if (servo1PPos < servo1Pos) {
+            for ( int j = servo1PPos; j <= servo1Pos; j++) {   // Run servo up
+              servo01.write(j);
+              Serial.print(j);Serial.print(".");
+              delay(speedDelay);
+            }
           }
         }
-        // If previous position is smaller then current position
-        if (servo1PPos < servo1Pos) {
-          for ( int j = servo1PPos; j <= servo1Pos; j++) {   // Run servo up
-            servo01.write(j);
-            delay(speedDelay);
-          }
-        }
+        
+        delay(timeDelayAfterMov);
         servo1PPos = servo1Pos;   // set current position as previous position
         Serial.println(servo01.read());
       }
       
       // Move Servo 2
       if (dataIn.startsWith("s2")) {
-        Serial.println("Moviendo servo 2");
+        
         String dataInS = dataIn.substring(2, dataIn.length());
-        servo2Pos = dataInS.toInt();
-  
-        if (servo2PPos > servo2Pos) {
-          for ( int j = servo2PPos; j >= servo2Pos; j--) {
-            servo02.write(j);
-            delay(speedDelay);
+        servo2Pos = corregirServo02(dataInS.toInt());
+        if(servo2Pos != servo2PPos){
+         Serial.print("Moviendo servo 2 ");
+         Serial.print(servo2PPos); Serial.print(" - ");
+         Serial.println(servo2Pos);
+          if (servo2PPos > servo2Pos) {
+            for ( int j = servo2PPos; j >= servo2Pos; j--) {
+              servo02.write(j);
+              Serial.print(j);Serial.print(".");
+              delay(speedDelay);
+            }
+          }
+          if (servo2PPos < servo2Pos) {
+            for ( int j = servo2PPos; j <= servo2Pos; j++) {
+              servo02.write(j);
+              delay(speedDelay);
+            }
           }
         }
-        if (servo2PPos < servo2Pos) {
-          for ( int j = servo2PPos; j <= servo2Pos; j++) {
-            servo02.write(j);
-            delay(speedDelay);
-          }
-        }
+        
+        delay(timeDelayAfterMov);
         servo2PPos = servo2Pos;
         Serial.println(servo02.read());
       }
       // Move Servo 3
       if (dataIn.startsWith("s3")) {
-        Serial.println("Moviendo servo 3");
         String dataInS = dataIn.substring(2, dataIn.length());
-        servo3Pos = dataInS.toInt();
-        if (servo3PPos > servo3Pos) {
-          for ( int j = servo3PPos; j >= servo3Pos; j--) {
-            servo03.write(j);
-            delay(speedDelay);
+        servo3Pos = corregirServo03(dataInS.toInt());
+        if(servo3Pos != servo3PPos){
+          Serial.print("Moviendo servo 3 ");
+          Serial.print(servo3PPos); Serial.print(" - ");
+          Serial.println(servo3Pos);
+          
+          if (servo3PPos > servo3Pos) {
+            for ( int j = servo3PPos; j >= servo3Pos; j--) {
+              servo03.write(j);
+              Serial.print(j);Serial.print(".");
+              delay(speedDelay);
+            }
+          }
+          if (servo3PPos < servo3Pos) {
+            for ( int j = servo3PPos; j <= servo3Pos; j++) {
+              servo03.write(j);
+              Serial.print(j);Serial.print(".");
+              delay(speedDelay);
+            }
           }
         }
-        if (servo3PPos < servo3Pos) {
-          for ( int j = servo3PPos; j <= servo3Pos; j++) {
-            servo03.write(j);
-            delay(speedDelay);
-          }
-        }
+        delay(timeDelayAfterMov);        
         servo3PPos = servo3Pos;
         Serial.println(servo03.read());
       }
       // Move Servo 4
       if (dataIn.startsWith("s4")) {
-        Serial.println("Moviendo servo 4");
         String dataInS = dataIn.substring(2, dataIn.length());
-        servo4Pos = dataInS.toInt();
-        if (servo4PPos > servo4Pos) {
-          for ( int j = servo4PPos; j >= servo4Pos; j--) {
-            servo04.write(j);
-            delay(speedDelay);
+        servo4Pos = corregirServo04(dataInS.toInt());
+        if(servo4Pos != servo4PPos){
+          Serial.print("Moviendo servo 4 ");
+          Serial.print(servo4PPos); Serial.print(" - ");
+          Serial.println(servo4Pos);
+        
+          if (servo4PPos > servo4Pos) {
+            for ( int j = servo4PPos; j >= servo4Pos; j--) {
+              servo04.write(j);
+              Serial.print(j);Serial.print(".");
+              delay(speedDelay);
+            }
+          }
+          if (servo4PPos < servo4Pos) {
+            for ( int j = servo4PPos; j <= servo4Pos; j++) {
+              servo04.write(j);
+              Serial.print(j);Serial.print(".");
+              delay(speedDelay);
+            }
           }
         }
-        if (servo4PPos < servo4Pos) {
-          for ( int j = servo4PPos; j <= servo4Pos; j++) {
-            servo04.write(j);
-            delay(speedDelay);
-          }
-        }
+        delay(timeDelayAfterMov);  
         servo4PPos = servo4Pos;
         Serial.println(servo04.read());
       }
       // Move Servo 5
       if (dataIn.startsWith("s5")) {
-        Serial.println("Moviendo servo 5");
         String dataInS = dataIn.substring(2, dataIn.length());
-        servo5Pos = dataInS.toInt();
-        if (servo5PPos > servo5Pos) {
-          for ( int j = servo5PPos; j >= servo5Pos; j--) {
-            servo05.write(j);
-            delay(speedDelay);
-          }
+        servo5Pos = corregirServo05(dataInS.toInt());
+        if(servo5Pos != servo5PPos){
+          Serial.print("Moviendo servo 5 ");
+          Serial.print(servo5PPos); Serial.print(" - ");
+          Serial.println(servo5Pos);
+        
+          if (servo5PPos > servo5Pos) {
+              for ( int j = servo5PPos; j >= servo5Pos; j--) {
+                servo05.write(j);
+                Serial.print(j);Serial.print(".");
+                delay(speedDelay);
+              }
+            }
+            if (servo5PPos < servo5Pos) {
+              for ( int j = servo5PPos; j <= servo5Pos; j++) {
+                servo05.write(j + 40);
+                Serial.print(j);Serial.print(".");
+                delay(speedDelay);
+              }
+            }
         }
-        if (servo5PPos < servo5Pos) {
-          for ( int j = servo5PPos; j <= servo5Pos; j++) {
-            servo05.write(j + 40);
-            delay(speedDelay);
-          }
-        }
+        delay(timeDelayAfterMov);  
         servo5PPos = servo5Pos;
         Serial.println(servo05.read());
       }
@@ -226,6 +267,7 @@ void loop() {
 
 // Automatic mode custom function - run the saved steps
 void runservo() {
+  Serial.println("Run Servo");
   while (dataIn != "RESET") {   // Run the steps over and over again until "RESET" button is pressed
     for (int i = 0; i <= index - 2; i++) {  // Run through all steps(index)
       if (Bluetooth.available() > 0) {      // Check for incomding data
@@ -345,62 +387,78 @@ void runservo() {
   }
 }
 
-String getValue(String data, char separator, int index)
-{
-    int found = 0;
-    int strIndex[] = { 0, -1 };
-    int maxIndex = data.length() - 1;
 
-    for (int i = 0; i <= maxIndex && found <= index; i++) {
-        if (data.charAt(i) == separator || i == maxIndex) {
-            found++;
-            strIndex[0] = strIndex[1] + 1;
-            strIndex[1] = (i == maxIndex) ? i+1 : i;
-        }
-    }
-    return found > index ? data.substring(strIndex[0] - 1, strIndex[1]) : "";
-}
-void readBtSerial()
+// Con estas funciones se consigue que el valor que llega en pos, vaya al servo con un rango de entre 0 y 180 grados.
+int corregirServo01(int pos)
 {
-  while (Bluetooth.available() > 0) {
-    inByte = Bluetooth.read();
-    if((inByte == 's' || inByte == 'R' || inByte == 'S') & !first)
-    {
-      delay(1);
-      dataIn += inByte; delay(1);
-      first = true;
-      timeoutB = millis();
-    }  
-    else if((first & (millis() - timeoutB > 6)) || (inByte == 's' || inByte == 'R' || inByte == 'S') || inByte == '.')
-    {
-      first = false;
-      salto = true;
-      break;    
-    }else if(first)
-    { 
-      dataIn += inByte; delay(1);
-    }else
-    {
-      /*
-      Serial.println("****************Status*******************");
-      Serial.print("Servo 1:"); Serial.println(servo01.read());
-      Serial.print("Servo 2:"); Serial.println(servo02.read());
-      Serial.print("Servo 3:"); Serial.println(servo03.read());
-      Serial.print("Servo 4:"); Serial.println(servo04.read());
-      Serial.print("Servo 5:"); Serial.println(servo05.read());
-      Serial.print("Servo 6:"); Serial.println(servo06.read());
-      Serial.println("****************************************"); 
-      */
-    }
-    /*else
-    { 
-      Serial.print("Inbyte no valido: ");Serial.println(inByte);
-    }*/
-    
-  }
+  return pos;
+  return (pos-23)*1.2;
+}
+
+
+int corregirServo02(int pos)
+{
+  return (pos-100)*2.3;
+}
+
+
+int corregirServo03(int pos)
+{
+  return pos;
+  return (pos-34)*1.7;
+}
+
+
+int corregirServo04(int pos)
+{
+  return pos;
+  return (pos-4)*1.2;
+}
+
+
+int corregirServo05(int pos)
+{
+  return pos;
+  return (pos-28)*1.4;
 }
 
 int corregirServo06(int pos)
 {
+  return pos;
   return (pos-85)*5;
+}
+
+const int timeoutSerial = 20;
+bool debug = false;
+String pal = "";
+void readBtSerial()
+{
+  while (Bluetooth.available() > 0) {
+    inByte = Bluetooth.read();
+    pal += inByte;
+    if(debug) Serial.print(".");
+    if(debug) Serial.print(inByte); 
+    if(inByte == 'A' & !first)
+    {
+      inByte = ""; pal = "A";
+      first = true;
+      timeoutB = millis();
+    }  
+    else if((first & (millis() - timeoutB > timeoutSerial)) || inByte == 'Z' || inByte == '.')
+    {
+      first = false;
+      salto = true;
+      if(millis() - timeoutB > timeoutSerial) {dataIn = "";} // Invalido por timeout
+      if(inByte != 'Z' & inByte != '.') {dataIn = "";} // Invalido por inconsistente
+      if(debug) {Serial.print("Pal: ");Serial.println(pal);}
+      break;    
+    }
+    else if(inByte == 'A')
+    {
+       dataIn = ""; // Invalido por sobre-escritura
+       if(debug) Serial.println("omito");
+       break;
+    } else if((first & dataIn.length()>0) || (first & dataIn.length() == 0 & inByte == 's')) dataIn += String(inByte);
+  }
+  delay(1);
 }

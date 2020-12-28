@@ -19,7 +19,7 @@ int servo1Pos, servo2Pos, servo3Pos, servo4Pos, servo5Pos, servo6Pos; // current
 int servo1PPos, servo2PPos, servo3PPos, servo4PPos, servo5PPos, servo6PPos; // previous position
 int servo01SP[50], servo02SP[50], servo03SP[50], servo04SP[50], servo05SP[50], servo06SP[50]; // for storing positions/steps
 int speedDelay = 15;
-int timeDelayAfterMov = 200;
+int timeDelayAfterMov = 500;
 int index = 0;
 bool first = false, salto = false;
 unsigned long timeoutB = 0;
